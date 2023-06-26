@@ -1,0 +1,10 @@
+---
+
+nextcloud_exporter_version: "latest"
+nextcloud_exporter_server: ""
+nextcloud_exporter_auth_token: ""
+nextcloud_exporter_username: ""
+nextcloud_exporter_password: ""
+nextcloud_exporter_listen_address: ":9205"
+nextcloud_exporter_timeout: "5s"
+nextcloud_exporter_tls_skip_verify: false

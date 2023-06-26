@@ -1,0 +1,45 @@
+---
+
+- name: Fail if nextcloud_exporter_server is missing
+  ansible.builtin.fail:
+    msg: "nextcloud_exporter_server is required"
+  when: not nextcloud_exporter_server
+
+- name: Fail if authetication is missing
+  ansible.builtin.fail:
+    msg: "nextcloud_exporter_auth_token or nextcloud_exporter_username/nextcloud_exporter_password are required"
+  when:
+    - not nextcloud_exporter_auth_token
+    - not nextcloud_exporter_username or not nextcloud_exporter_password
+
+- name: Include installation tasks
+  ansible.builtin.include_tasks:
+    file: install.yml
+    apply:
+      tags: ["install"]
+  tags: ["install"]
+
+- name: Copy config file
+  ansible.builtin.template:
+    src: "nextcloud-exporter.yml.j2"
+    dest: "/etc/nextcloud-exporter.yml"
+    owner: root
+    group: nextcloud-exporter
+    mode: "0640"
+  notify: Restart nextcloud exporter
+
+- name: Copy systemd service
+  ansible.builtin.template:
+    src: "nextcloud-exporter.service.j2"
+    dest: /etc/systemd/system/nextcloud-exporter.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart nextcloud exporter
+
+- name: Enable and start service
+  ansible.builtin.systemd:
+    name: nextcloud-exporter.service
+    state: started
+    enabled: true
+    daemon_reload: true

@@ -1,0 +1,26 @@
+---
+
+galaxy_info:
+  role_name: nextcloud_exporter
+  author: Andrei Costescu
+  namespace: cosandr
+  description: Ansible role for setting up nextcloud_exporter.
+
+  issue_tracker_url: https://github.com/cosandr/ansible-role-nextcloud_exporter/issues
+
+  license: MIT
+
+  min_ansible_version: "2.12"
+
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+    - name: Fedora
+      versions:
+        - "any"
+
+  galaxy_tags: []
+
+dependencies: []

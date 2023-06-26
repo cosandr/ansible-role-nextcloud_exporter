@@ -1,0 +1,35 @@
+---
+
+dependency:
+  name: galaxy
+driver:
+  name: podman
+lint: |
+  set -e
+  yamllint .
+  ansible-lint
+platforms:
+  - name: default-nextcloud_exporter
+    image: "${uns:-jam82}/molecule-${img:-almalinux}:${tag:-9}"
+    command: ""
+    pre_build_image: true
+    tty: false
+    tmpfs:
+      - /tmp
+      - /run
+    volumes:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:ro"
+provisioner:
+  name: ansible
+  log: true
+  playbooks:
+    prepare: ../resources/playbooks/prepare.yml
+    converge: ../resources/playbooks/converge.yml
+    verify: ../resources/playbooks/verify.yml
+  inventory:
+    group_vars:
+      all:
+        nextcloud_exporter_server: "https://example.com"
+        nextcloud_exporter_auth_token: "dummy"
+verifier:
+  name: ansible

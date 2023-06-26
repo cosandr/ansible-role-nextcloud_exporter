@@ -1,0 +1,13 @@
+---
+
+# https://github.com/xperimental/nextcloud-exporter#configuration-file
+server: "{{ nextcloud_exporter_server }}"
+{% if nextcloud_exporter_auth_token %}
+authToken: "{{ nextcloud_exporter_auth_token }}"
+{% else %}
+username: "{{ nextcloud_exporter_username }}"
+password: "{{ nextcloud_exporter_password }}"
+{% endif %}
+listenAddress: "{{ nextcloud_exporter_listen_address }}"
+timeout: "{{ nextcloud_exporter_timeout }}"
+tlsSkipVerify: {{ nextcloud_exporter_tls_skip_verify }}

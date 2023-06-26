@@ -1,0 +1,6 @@
+---
+
+- name: Restart nextcloud exporter
+  ansible.builtin.systemd:
+    name: nextcloud-exporter.service
+    state: restarted

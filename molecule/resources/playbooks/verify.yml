@@ -1,0 +1,16 @@
+---
+
+- name: Verify
+  hosts: all
+  become: false
+  gather_facts: false
+  tasks:
+    - name: Ensure exporter is running
+      ansible.builtin.uri:
+        url: "http://localhost:9205"
+        return_content: true
+      register: res
+
+    - name: Ensure we got something
+      ansible.builtin.assert:
+        that: "'nextcloud_up' in res.content"

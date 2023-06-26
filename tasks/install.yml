@@ -1,0 +1,66 @@
+---
+
+- name: Fetch latest release
+  when: nextcloud_exporter_version == "latest"
+  block:
+    - name: Get latest release
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/xperimental/nextcloud-exporter/releases/latest"
+        method: GET
+        return_content: true
+        status_code: 200
+        body_format: json
+        validate_certs: true
+      register: _latest_release
+      until: _latest_release.status == 200
+      retries: 5
+      check_mode: false
+
+    - name: "Set nextcloud_exporter version to {{ _latest_release.json.tag_name[1:] }}"
+      ansible.builtin.set_fact:
+        nextcloud_exporter_version: "{{ _latest_release.json.tag_name[1:] }}"
+
+- name: Download nextcloud_exporter binary to local folder  # noqa risky-file-permissions
+  become: false
+  ansible.builtin.get_url:
+    url: "https://github.com/xperimental/nextcloud-exporter/releases/download/v{{ nextcloud_exporter_version }}/{{ __nextcloud_exporter_archive_name }}.bz2"
+    dest: "/tmp/{{ __nextcloud_exporter_archive_name }}.bz2"
+  register: _download_archive
+  until: _download_archive is succeeded
+  retries: 5
+  delay: 2
+  # run_once: true # <-- this cannot be set due to multi-arch support
+  delegate_to: localhost
+  check_mode: false
+
+- name: Unpack nextcloud_exporter binaries
+  become: false
+  ansible.builtin.command:
+    # Keep for download idempotence
+    cmd: "bzip2 -k -d /tmp/{{ __nextcloud_exporter_archive_name }}.bz2"
+    creates: "/tmp/{{ __nextcloud_exporter_archive_name }}"
+  delegate_to: localhost
+  check_mode: false
+
+- name: Propagate official nextcloud_exporter binary
+  ansible.builtin.copy:
+    src: "/tmp/{{ __nextcloud_exporter_archive_name }}"
+    dest: "/usr/local/bin/nextcloud-exporter"
+    mode: "0755"
+    owner: root
+    group: root
+  notify: Restart nextcloud exporter
+
+- name: Create nextcloud-exporter system group
+  ansible.builtin.group:
+    name: nextcloud-exporter
+    system: true
+    state: present
+
+- name: Create nextcloud-exporter system user
+  ansible.builtin.user:
+    name: nextcloud-exporter
+    system: true
+    shell: "/usr/sbin/nologin"
+    group: nextcloud-exporter
+    createhome: false
