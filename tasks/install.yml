@@ -4,6 +4,9 @@
   when: nextcloud_exporter_version == "latest"
   block:
     - name: Get latest release
+      become: false
+      delegate_to: localhost
+      run_once: true
       ansible.builtin.uri:
         url: "https://api.github.com/repos/xperimental/nextcloud-exporter/releases/latest"
         method: GET
@@ -12,7 +15,9 @@
         body_format: json
         validate_certs: true
       register: _latest_release
-      until: _latest_release.status == 200
+      until:
+        - _latest_release.status is defined
+        - _latest_release.status == 200
       retries: 5
       check_mode: false
 

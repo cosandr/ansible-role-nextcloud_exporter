@@ -5,4 +5,4 @@ go_arch_map:
   aarch64: 'arm64'
 
 go_arch: "{{ go_arch_map[ansible_architecture] | default(ansible_architecture) }}"
-__nextcloud_exporter_archive_name: "nextcloud-exporter-{{ nextcloud_exporter_version }}-{{ go_arch }}"
+__nextcloud_exporter_archive_name: "nextcloud-exporter_{{ nextcloud_exporter_version }}_{{ go_arch }}"
